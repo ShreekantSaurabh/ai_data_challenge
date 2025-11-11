@@ -188,37 +188,39 @@ Both approaches expose the FastAPI service on port `8080`. The container execute
 
 ## Technical Architecture Diagram
 
----
-config:
-  layout: elk
----
 flowchart TD
-    DATA["CustomerGroups.csv<br>or GCS Data Source"] --> PIPELINE["Training Pipeline (main.py)<br>Preprocessing + Model Training"]
-    NOTEBOOK["EDA &amp; Model Training Notebook<br>(Exploration, Benchmarking, ROI Uplift)"] --> PIPELINE
-    PIPELINE --> MODEL["ML Model Artifacts<br>• preprocessor.pkl<br>• trained_model.pkl"]
-    MODEL --> STORAGE["Google Cloud Storage<br>(Artifact Repository)"]
-    STORAGE --> API["FastAPI Prediction API<br>(Uvicorn, Dockerized)"]
-    API --> CLOUDRUN["GCP Cloud Run<br>(Container Hosting)"] & BIGQUERY["BigQuery<br>(Logs / Campaign History)"]
-    UI["Marketing Dashboard / Streamlit UI"] -- POST /predict --> CLOUDRUN
-    CLOUDRUN --> API & MONITOR["Cloud Logging / Monitoring"]
-    API -- Load model + preprocessor --> MODEL
-    MONITOR --> PIPELINE
-     UI:::ui
-     API:::api
-     PIPELINE:::ml
-     MODEL:::data
-     DATA:::data
-     NOTEBOOK:::ml
-     CLOUDRUN:::infra
-     STORAGE:::data
-     BIGQUERY:::data
-     MONITOR:::infra
-    classDef ui fill:#E3F2FD,stroke:#1E88E5,color:#0D47A1,fontWeight:bold
-    classDef api fill:#E8F5E9,stroke:#43A047,color:#1B5E20,fontWeight:bold
-    classDef ml fill:#FFF3E0,stroke:#FB8C00,color:#E65100,fontWeight:bold
-    classDef data fill:#F3E5F5,stroke:#8E24AA,color:#4A148C,fontWeight:bold
-    classDef infra fill:#ECEFF1,stroke:#546E7A,color:#263238,fontWeight:bold
+    %% Style definitions
+    classDef ui fill:#E3F2FD,stroke:#1E88E5,color:#0D47A1,fontWeight:bold;
+    classDef api fill:#E8F5E9,stroke:#43A047,color:#1B5E20,fontWeight:bold;
+    classDef ml fill:#FFF3E0,stroke:#FB8C00,color:#E65100,fontWeight:bold;
+    classDef data fill:#F3E5F5,stroke:#8E24AA,color:#4A148C,fontWeight:bold;
+    classDef infra fill:#ECEFF1,stroke:#546E7A,color:#263238,fontWeight:bold;
 
+    %% Nodes
+    UI["Marketing Dashboard / Streamlit UI"]:::ui
+    API["FastAPI Prediction API<br/>(Uvicorn, Dockerized)"]:::api
+    PIPELINE["Training Pipeline (main.py)<br/>Preprocessing + Model Training"]:::ml
+    MODEL["ML Model Artifacts<br/>• preprocessor.pkl<br/>• trained_model.pkl"]:::data
+    DATA["CustomerGroups.csv<br/>or GCS Data Source"]:::data
+    NOTEBOOK["EDA & Model Training Notebook<br/>(Exploration, Benchmarking, ROI Uplift)"]:::ml
+    CLOUDRUN["GCP Cloud Run<br/>(Container Hosting)"]:::infra
+    STORAGE["Google Cloud Storage<br/>(Artifact Repository)"]:::data
+    BIGQUERY["BigQuery<br/>(Logs / Campaign History)"]:::data
+    MONITOR["Cloud Logging / Monitoring"]:::infra
+
+    %% Flows
+    DATA --> PIPELINE
+    NOTEBOOK --> PIPELINE
+    PIPELINE --> MODEL
+    MODEL --> STORAGE
+    STORAGE --> API
+    API --> CLOUDRUN
+    UI -->|"POST /predict"| CLOUDRUN
+    CLOUDRUN --> API
+    API -->|"Load model + preprocessor"| MODEL
+    API --> BIGQUERY
+    CLOUDRUN --> MONITOR
+    MONITOR --> PIPELINE
 
 ## Sequence Diagram
 
@@ -240,4 +242,3 @@ sequenceDiagram
     F->>B: 8. Log request, prediction, timestamp
     F-->>U: 9. Respond { "predicted_target": "group 1" }
     Note right of F: Logs and predictions stored<br/>for monitoring & retraining
-
