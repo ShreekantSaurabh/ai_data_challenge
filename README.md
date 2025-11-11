@@ -8,6 +8,7 @@ ai_data_challenge/
 ├── customerGroups.csv
 ├── docker-compose.yml
 ├── Dockerfile
+├── models/
 ├── main.py
 ├── notebooks/
 │   └── EDA_and_Model_Training.ipynb
