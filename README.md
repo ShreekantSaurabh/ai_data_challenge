@@ -188,6 +188,7 @@ Both approaches expose the FastAPI service on port `8080`. The container execute
 
 ## Technical Architecture Diagram
 
+```mermaid
 flowchart TD
     %% Style definitions
     classDef ui fill:#E3F2FD,stroke:#1E88E5,color:#0D47A1,fontWeight:bold;
@@ -224,6 +225,7 @@ flowchart TD
 
 ## Sequence Diagram
 
+```mermaid
 sequenceDiagram
     autonumber
     participant U as User (Marketing Dashboard)
